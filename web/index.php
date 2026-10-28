@@ -2,6 +2,11 @@
 require __DIR__.'/includes/bootstrap.php';
 require __DIR__.'/includes/mailer.php';
 $error='';$notice='';
+// Retain non-sensitive values when validation fails; never echo passwords.
+function old(string $key): string {
+ return ($_SERVER['REQUEST_METHOD'] ?? '') === 'POST' && ($_POST['action'] ?? '') === 'add'
+  ? h((string)($_POST[$key] ?? '')) : '';
+}
 if ($_SERVER['REQUEST_METHOD']==='POST') {
  require_csrf();
  try {
@@ -103,9 +108,9 @@ $flash=$_SESSION['flash']??'';unset($_SESSION['flash']);
 <section><h2>Informácie</h2><p class="welcome"><?=nl2br(h(setting('welcome')))?></p><p><strong>Počet tabletov:</strong> <?=h(setting('tablet_count'))?></p></section>
 <?php if(authenticated()):?>
 <section><h2>Nová rezervácia</h2><form method="post" class="grid"><input type="hidden" name="csrf" value="<?=h(csrf())?>"><input type="hidden" name="action" value="add">
-<label>Meno a priezvisko <input name="teacher" maxlength="200" required></label>
-<label>Počet tabletov <input type="number" name="tablets" min="1" max="<?=h(setting('tablet_count'))?>" required></label>
-<label>Od <input type="datetime-local" name="start" required></label><label>Do <input type="datetime-local" name="end" required></label>
+<label>Meno a priezvisko <input name="teacher" maxlength="200" value="<?=old('teacher')?>" required></label>
+<label>Počet tabletov <input type="number" name="tablets" min="1" max="<?=h(setting('tablet_count'))?>" value="<?=old('tablets')?>" required></label>
+<label>Od <input type="datetime-local" name="start" value="<?=old('start')?>" required></label><label>Do <input type="datetime-local" name="end" value="<?=old('end')?>" required></label>
 <label>Heslo na zrušenie <input type="password" name="removal_password" minlength="4" required></label><div class="form-action"><button>Pridať rezerváciu</button></div></form>
 <p class="hint">Interval môže pokračovať aj cez noc alebo viac dní. Pre opakované termíny vytvorte samostatné rezervácie.</p></section>
 <?php endif;?>
