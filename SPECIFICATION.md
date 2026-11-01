@@ -8,7 +8,7 @@ A Slovak-language responsive reservation website for a shared pool of school tab
 - First deployment and CLI admin reset allow setting the admin password through the website without the old password.
 - Only authenticated users can add or cancel reservations. Admin can also manage passwords, capacity, welcome text and past reservations.
 - A random 256-bit read-only token in notification links permits calendar viewing without login; it does not permit modifications. CLI rotation invalidates previous links.
-- Passwords are hashed with PHP `password_hash`; session cookies are HttpOnly, Secure and SameSite=Lax; POST actions require CSRF tokens.
+- Shared teacher, administrator and cancellation passwords require at least five characters. Cancellation passwords are entered visibly to reduce keyboard-layout mistakes.\n- Passwords are hashed with PHP `password_hash`; session cookies are HttpOnly, Secure and SameSite=Lax; POST actions require CSRF tokens.
 
 ## Reservations
 - Teacher full name, tablet quantity, start and end date/time and per-reservation removal password required.
@@ -19,7 +19,7 @@ A Slovak-language responsive reservation website for a shared pool of school tab
 - No editing: cancel and recreate.
 
 ## Calendar and history
-- Responsive vertical daily calendar, 30-day paging, green for no bookings, yellow for partially reserved, grey for fully reserved during any part of a day.
+- Responsive vertical daily calendar, 30-day paging (no previous-page button on the first page), a daily minimum-free-tablet count, green for no bookings, yellow for partially reserved, grey for fully reserved during any part of a day.
 - A continuous multi-day booking is displayed on each affected day.
 - Current reservations hide those already ended. Admin can view past bookings and export UTF-8 CSV.
 
