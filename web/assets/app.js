@@ -24,6 +24,8 @@ function render(){
   const tomorrow=new Date(day);tomorrow.setDate(day.getDate()+1);
   const active=records.filter(r=>r.start<tomorrow&&r.end>day);
   const div=document.createElement('div');div.className='day';
+  // Highlight weekends without hiding the reservation capacity status.
+  if(day.getDay()===0 || day.getDay()===6)div.classList.add('weekend');
   // Capacity status is computed from a sweep of interval endpoints within the day.
   const ev=[];for(const r of active){ev.push([Math.max(day.getTime(),r.start.getTime()),r.count]);ev.push([Math.min(tomorrow.getTime(),r.end.getTime()),-r.count]);}
   ev.sort((a,b)=>a[0]-b[0]||a[1]-b[1]);
