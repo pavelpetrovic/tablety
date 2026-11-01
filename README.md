@@ -30,7 +30,7 @@ The reminder script sends an individual email for every reservation **starting t
 
 ## Using the website
 
-Log in with the shared teacher password or the administrator password. Enter a teacher's full name, tablet count, start and end date/time and a reservation-specific removal password. A booking is **one continuous interval**, possibly including several days and nights. For recurring use, create separate bookings. Reservations may start from now up to three months ahead. Overbooking is rejected even when only part of an interval overlaps.
+Log in with the shared teacher password or the administrator password. Enter a teacher's full name, tablet count, start and end date/time and a reservation-specific removal password. The start and end use separate date, 24-hour hour, and five-minute minute selectors, limited to 07:00–18:00 (18:00 is the latest return). A booking is **one continuous interval**, possibly including several days and nights. For recurring use, create separate bookings. Reservations may start from now up to three months ahead. Overbooking is rejected even when only part of an interval overlaps.
 
 The vertical calendar shows 30 days at a time, including the **minimum number of free tablets during each day**. The previous-page button is hidden on the first page. Green means free, yellow means some tablets are booked, grey means all tablets are booked during at least part of the day. A multi-day booking appears on every affected day.
 
