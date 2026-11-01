@@ -13,7 +13,7 @@ A Slovak-language responsive reservation website for a shared pool of school tab
 ## Reservations
 - Teacher full name, tablet quantity, start and end date/time and per-reservation removal password required.
 - A reservation is one continuous interval, including nights; repeating dates require separate entries.
-- Starts strictly in the future and within three calendar months; ends after starts.
+- Date and separate 24-hour hour/minute selectors permit 07:00–18:00 in five-minute increments; the server enforces the same limits. 18:00 is the latest end time.\n- Starts strictly in the future and within three calendar months; ends after starts.
 - Overlapping reservations are permitted only if the sum of reserved tablets never exceeds configurable capacity (initially 25). Writers serialize through a locked settings row.
 - Admin or anyone supplying the reservation removal password can cancel; cancellation deletes the record, including its IP address and timestamp.
 - No editing: cancel and recreate.

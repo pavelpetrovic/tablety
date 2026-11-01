@@ -38,6 +38,12 @@ function valid_interval(string $start,string $end): array {
  $a=DateTimeImmutable::createFromFormat('!Y-m-d\TH:i',$start,$tz);
  $b=DateTimeImmutable::createFromFormat('!Y-m-d\TH:i',$end,$tz);
  if (!$a||!$b||$a->format('Y-m-d\TH:i')!==$start||$b->format('Y-m-d\TH:i')!==$end) throw new RuntimeException('Neplatný dátum alebo čas.');
+ // Server-side enforcement: the last permitted time is 18:00 exactly.
+ foreach([$a,$b] as $time) {
+  $hm=$time->format('H:i');
+  if ($hm<'07:00' || $hm>'18:00' || ((int)$time->format('i'))%5!==0)
+   throw new RuntimeException('Rezervácie musia byť medzi 07:00 a 18:00 v päťminútových krokoch.');
+ }
  $now=new DateTimeImmutable('now',$tz);
  if ($a<=$now || $a>$now->modify('+3 months') || $b<=$a) throw new RuntimeException('Termín musí začínať v budúcnosti (najviac 3 mesiace vopred) a končiť po začiatku.');
  return [$a->format('Y-m-d H:i:s'),$b->format('Y-m-d H:i:s')];
