@@ -17,7 +17,8 @@ function render(){
  prev.onclick=()=>{offset=Math.max(0,offset-30);render()};
  const next=document.createElement('button');next.textContent='Ďalšie →';next.onclick=()=>{offset+=30;render()};
  const title=document.createElement('span');title.textContent='Dni '+(offset+1)+'–'+(offset+30);
- nav.append(prev,title,next);out.append(nav);
+ if(offset>0)nav.append(prev);
+ nav.append(title,next);out.append(nav);
  for(let i=offset;i<offset+30;i++){
   const day=new Date(today);day.setDate(day.getDate()+i);
   const tomorrow=new Date(day);tomorrow.setDate(day.getDate()+1);
@@ -28,7 +29,10 @@ function render(){
   ev.sort((a,b)=>a[0]-b[0]||a[1]-b[1]);
   let used=0,max=0;for(const [,n] of ev){used+=n;max=Math.max(max,used);}
   if(max>=cap)div.classList.add('full');else if(max>0)div.classList.add('partial');
-  const head=document.createElement('div');head.className='day-title';head.textContent=fmt.format(day)+(active.length?'':' · Voľné');div.append(head);
+  const head=document.createElement('div');head.className='day-title';
+  // The minimum free capacity is calculated at the day's busiest instant.
+  head.textContent=fmt.format(day)+' · Minimálne voľných: '+Math.max(0,cap-max)+' / '+cap;
+  div.append(head);
   for(const r of active){
    const row=document.createElement('div');row.className='entry';
    const label=document.createElement('span');
