@@ -15,7 +15,7 @@ Requires PHP 8.1+ with pdo_mysql, mbstring and openssl, MySQL 8, Composer and HT
    php scripts/rotate_view_token.php
    ```
 
-3. Visit the site **immediately** and choose the initial administrator password (minimum 12 characters). This first-time setup is deliberately unprotected, as requested.
+3. Visit the site **immediately** and choose the initial administrator password (minimum 5 characters). This first-time setup is deliberately unprotected, as requested.
 4. Under admin settings, choose the shared teacher password, edit the welcome text, and verify capacity (default **25** tablets).
 5. Test a booking, cancellation and SMTP email before distributing the shared teacher password. Gmail SMTP normally requires a Google app password.
 
@@ -32,9 +32,9 @@ The reminder script sends an individual email for every reservation **starting t
 
 Log in with the shared teacher password or the administrator password. Enter a teacher's full name, tablet count, start and end date/time and a reservation-specific removal password. A booking is **one continuous interval**, possibly including several days and nights. For recurring use, create separate bookings. Reservations may start from now up to three months ahead. Overbooking is rejected even when only part of an interval overlaps.
 
-The vertical calendar shows 30 days at a time. Green means free, yellow means some tablets are booked, grey means all tablets are booked during at least part of the day. A multi-day booking appears on every affected day.
+The vertical calendar shows 30 days at a time, including the **minimum number of free tablets during each day**. The previous-page button is hidden on the first page. Green means free, yellow means some tablets are booked, grey means all tablets are booked during at least part of the day. A multi-day booking appears on every affected day.
 
-To change a reservation, cancel and register again. The removal password or admin login is required to cancel. Cancellation permanently deletes the reservation, including its creation timestamp and IP address. Administrators can view previous reservations, export CSV, change passwords, tablet capacity and welcome text.
+To change a reservation, cancel and register again. All passwords have a five-character minimum. The cancellation password is visible when entered to help avoid SK/EN keyboard-layout mistakes. The removal password or admin login is required to cancel. Cancellation permanently deletes the reservation, including its creation timestamp and IP address. Administrators can view previous reservations, export CSV, change passwords, tablet capacity and welcome text.
 
 Every teacher-made booking/cancellation generates an individual email to the administrator. Administrator-made changes generate no immediate email. Emails include a read-only token link to the reservation calendar and a Google Calendar event-creation link. Calendar events are not synchronized with cancellations. The token link grants viewing only; modifications still require login.
 

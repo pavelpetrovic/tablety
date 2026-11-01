@@ -13,7 +13,7 @@ if ($_SERVER['REQUEST_METHOD']==='POST') {
   $action=(string)($_POST['action']??'');
   if ($action==='setup' && setting('admin_hash')==='') {
    $password=(string)($_POST['password']??'');
-   if(strlen($password)<12) throw new RuntimeException('Administrátorské heslo musí mať aspoň 12 znakov.');
+   if(mb_strlen($password)<5) throw new RuntimeException('Administrátorské heslo musí mať aspoň 5 znakov.');
    set_setting('admin_hash',password_hash($password,PASSWORD_DEFAULT));
    session_regenerate_id(true);$_SESSION['role']='admin';flash('Administrátor nastavený.');redirect('/');
   }
@@ -35,7 +35,7 @@ if ($_SERVER['REQUEST_METHOD']==='POST') {
    foreach (['admin','teacher'] as $kind) {
     $pass=(string)($_POST[$kind.'_password']??'');
     if ($pass!=='') {
-     if(strlen($pass)<12) throw new RuntimeException('Heslo musí mať aspoň 12 znakov.');
+     if(mb_strlen($pass)<5) throw new RuntimeException('Heslo musí mať aspoň 5 znakov.');
      set_setting($kind.'_hash',password_hash($pass,PASSWORD_DEFAULT));
     }
    }
@@ -45,7 +45,7 @@ if ($_SERVER['REQUEST_METHOD']==='POST') {
    $teacher=trim((string)($_POST['teacher']??''));
    $password=(string)($_POST['removal_password']??'');
    $count=filter_var($_POST['tablets']??'',FILTER_VALIDATE_INT);
-   if (mb_strlen($teacher)<3||mb_strlen($teacher)>200||strlen($password)<4||$count===false||$count<1) throw new RuntimeException('Vyplňte meno, počet tabletov a heslo na zrušenie.');
+   if (mb_strlen($teacher)<3||mb_strlen($teacher)>200||mb_strlen($password)<5||$count===false||$count<1) throw new RuntimeException('Vyplňte meno, počet tabletov a heslo na zrušenie.');
    [$start,$end]=valid_interval((string)($_POST['start']??''),(string)($_POST['end']??''));
    $pdo=db();$pdo->beginTransaction();
    try {
@@ -100,7 +100,7 @@ $flash=$_SESSION['flash']??'';unset($_SESSION['flash']);
 <?php if($error):?><div class="alert"><?=h($error)?></div><?php endif;?>
 <?php if($flash):?><div class="success"><?=h($flash)?></div><?php endif;?>
 <?php if($setup):?>
-<section><h2>Prvé nastavenie administrátora</h2><p>Po nasadení ihneď nastavte administrátorské heslo.</p><form method="post"><input type="hidden" name="csrf" value="<?=h(csrf())?>"><input type="hidden" name="action" value="setup"><label>Nové administrátorské heslo <input type="password" name="password" minlength="12" required></label><button>Nastaviť</button></form></section>
+<section><h2>Prvé nastavenie administrátora</h2><p>Po nasadení ihneď nastavte administrátorské heslo.</p><form method="post"><input type="hidden" name="csrf" value="<?=h(csrf())?>"><input type="hidden" name="action" value="setup"><label>Nové administrátorské heslo <input type="password" name="password" minlength="5" required></label><button>Nastaviť</button></form></section>
 <?php elseif(!$view):?>
 <section><h2>Prihlásenie</h2><form method="post"><input type="hidden" name="csrf" value="<?=h(csrf())?>"><input type="hidden" name="action" value="login"><label>Heslo <input type="password" name="password" required autofocus></label><button>Prihlásiť sa</button></form></section>
 <?php else:?>
@@ -111,7 +111,7 @@ $flash=$_SESSION['flash']??'';unset($_SESSION['flash']);
 <label>Meno a priezvisko <input name="teacher" maxlength="200" value="<?=old('teacher')?>" required></label>
 <label>Počet tabletov <input type="number" name="tablets" min="1" max="<?=h(setting('tablet_count'))?>" value="<?=old('tablets')?>" required></label>
 <label>Od <input type="datetime-local" name="start" value="<?=old('start')?>" required></label><label>Do <input type="datetime-local" name="end" value="<?=old('end')?>" required></label>
-<label>Heslo na zrušenie <input type="password" name="removal_password" minlength="4" required></label><div class="form-action"><button>Pridať rezerváciu</button></div></form>
+<label>Heslo na zrušenie <input type="text" name="removal_password" minlength="5" autocomplete="off" required></label><div class="form-action"><button>Pridať rezerváciu</button></div></form>
 <p class="hint">Interval môže pokračovať aj cez noc alebo viac dní. Pre opakované termíny vytvorte samostatné rezervácie.</p></section>
 <?php endif;?>
 <section><h2><?= $past?'Minulé rezervácie':'Kalendár rezervácií' ?></h2>
@@ -120,12 +120,12 @@ $flash=$_SESSION['flash']??'';unset($_SESSION['flash']);
 <?php foreach($list as $r):?><article class="reservation" id="reservation-<?= (int)$r['id']?>" data-start="<?=h($r['starts_at'])?>" data-end="<?=h($r['ends_at'])?>" data-count="<?= (int)$r['tablets']?>">
 <div><strong><?=h($r['teacher'])?></strong> · <?= (int)$r['tablets']?> ks<br><small><?=h($r['starts_at'])?> – <?=h($r['ends_at'])?></small></div>
 <div class="actions"><a target="_blank" rel="noopener" href="<?=h(calendar_link($r))?>">📅 Google Kalendár</a>
-<?php if(authenticated()&&!$past):?><form method="post" onsubmit="return confirm('Naozaj zrušiť rezerváciu?')"><input type="hidden" name="csrf" value="<?=h(csrf())?>"><input type="hidden" name="action" value="remove"><input type="hidden" name="id" value="<?=(int)$r['id']?>"><?php if(!admin()):?><input type="password" name="removal_password" placeholder="Heslo na zrušenie" required><?php endif;?><button class="danger">Zrušiť</button></form><?php endif;?></div></article><?php endforeach;?>
+<?php if(authenticated()&&!$past):?><form method="post" onsubmit="return confirm('Naozaj zrušiť rezerváciu?')"><input type="hidden" name="csrf" value="<?=h(csrf())?>"><input type="hidden" name="action" value="remove"><input type="hidden" name="id" value="<?=(int)$r['id']?>"><?php if(!admin()):?><input type="text" name="removal_password" placeholder="Heslo na zrušenie" autocomplete="off" required><?php endif;?><button class="danger">Zrušiť</button></form><?php endif;?></div></article><?php endforeach;?>
 </div><div id="days"></div></section>
 <?php if(admin()):?><section><h2>Nastavenia</h2><form method="post" class="grid"><input type="hidden" name="csrf" value="<?=h(csrf())?>"><input type="hidden" name="action" value="settings">
 <label>Počet tabletov<input type="number" min="1" name="tablet_count" value="<?=h(setting('tablet_count'))?>" required></label>
-<label>Nové heslo učiteľov (nechať prázdne = bez zmeny)<input type="password" minlength="12" name="teacher_password"></label>
-<label>Nové heslo administrátora<input type="password" minlength="12" name="admin_password"></label>
+<label>Nové heslo učiteľov (nechať prázdne = bez zmeny)<input type="password" minlength="5" name="teacher_password"></label>
+<label>Nové heslo administrátora<input type="password" minlength="5" name="admin_password"></label>
 <label class="wide">Úvodný text<textarea name="welcome" rows="5"><?=h(setting('welcome'))?></textarea></label>
 <div class="form-action"><button>Uložiť nastavenia</button></div></form></section><?php endif;?>
 <?php endif;?>
