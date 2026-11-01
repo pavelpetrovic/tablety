@@ -7,6 +7,38 @@ function old(string $key): string {
  return ($_SERVER['REQUEST_METHOD'] ?? '') === 'POST' && ($_POST['action'] ?? '') === 'add'
   ? h((string)($_POST[$key] ?? '')) : '';
 }
+
+// Build a date and time from separate 24-hour controls. Do not trust browser validation.
+function selected_time(string $prefix): string {
+ $date=(string)($_POST[$prefix.'_date'] ?? '');
+ $hour=(string)($_POST[$prefix.'_hour'] ?? '');
+ $minute=(string)($_POST[$prefix.'_minute'] ?? '');
+ if (!preg_match('/^\\d{4}-\\d{2}-\\d{2}$/D',$date)
+     || !preg_match('/^(0[7-9]|1[0-8])$/D',$hour)
+     || !preg_match('/^(00|05|10|15|20|25|30|35|40|45|50|55)$/D',$minute)
+     || ($hour==='18' && $minute!=='00')) {
+  throw new RuntimeException('Vyberte platný dátum a čas medzi 07:00 a 18:00 v päťminútových krokoch.');
+ }
+ return $date.'T'.$hour.':'.$minute;
+}
+function time_fields(string $prefix,string $label): void {
+ echo '<fieldset class="time-fields"><legend>'.h($label).'</legend>';
+ echo '<label>Dátum <input type="date" name="'.h($prefix).'_date" value="'.old($prefix.'_date').'" required></label>';
+ echo '<label>Hodina <select name="'.h($prefix).'_hour" required>';
+ echo '<option value="">--</option>';
+ for($i=7;$i<=18;$i++){
+  $v=sprintf('%02d',$i);
+  echo '<option value="'.$v.'"'.(old($prefix.'_hour')===$v?' selected':'').'>'.$v.'</option>';
+ }
+ echo '</select></label>';
+ echo '<label>Minúta <select name="'.h($prefix).'_minute" required>';
+ echo '<option value="">--</option>';
+ for($i=0;$i<60;$i+=5){
+  $v=sprintf('%02d',$i);
+  echo '<option value="'.$v.'"'.(old($prefix.'_minute')===$v?' selected':'').'>'.$v.'</option>';
+ }
+ echo '</select></label></fieldset>';
+}
 if ($_SERVER['REQUEST_METHOD']==='POST') {
  require_csrf();
  try {
@@ -46,7 +78,7 @@ if ($_SERVER['REQUEST_METHOD']==='POST') {
    $password=(string)($_POST['removal_password']??'');
    $count=filter_var($_POST['tablets']??'',FILTER_VALIDATE_INT);
    if (mb_strlen($teacher)<3||mb_strlen($teacher)>200||mb_strlen($password)<5||$count===false||$count<1) throw new RuntimeException('Vyplňte meno, počet tabletov a heslo na zrušenie.');
-   [$start,$end]=valid_interval((string)($_POST['start']??''),(string)($_POST['end']??''));
+   [$start,$end]=valid_interval(selected_time('start'),selected_time('end'));
    $pdo=db();$pdo->beginTransaction();
    try {
     // Lock the single settings row to serialize all reservation writers.
@@ -110,7 +142,7 @@ $flash=$_SESSION['flash']??'';unset($_SESSION['flash']);
 <section><h2>Nová rezervácia</h2><form method="post" class="grid"><input type="hidden" name="csrf" value="<?=h(csrf())?>"><input type="hidden" name="action" value="add">
 <label>Meno a priezvisko <input name="teacher" maxlength="200" value="<?=old('teacher')?>" required></label>
 <label>Počet tabletov <input type="number" name="tablets" min="1" max="<?=h(setting('tablet_count'))?>" value="<?=old('tablets')?>" required></label>
-<label>Od <input type="datetime-local" name="start" value="<?=old('start')?>" required></label><label>Do <input type="datetime-local" name="end" value="<?=old('end')?>" required></label>
+<?php time_fields('start','Od'); time_fields('end','Do'); ?>
 <label>Heslo na zrušenie <input type="text" name="removal_password" minlength="5" autocomplete="off" required></label><div class="form-action"><button>Pridať rezerváciu</button></div></form>
 <p class="hint">Interval môže pokračovať aj cez noc alebo viac dní. Pre opakované termíny vytvorte samostatné rezervácie.</p></section>
 <?php endif;?>
