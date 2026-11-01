@@ -6,3 +6,8 @@
 .time-fields label{margin:0}
 .time-fields select{display:block;width:100%;padding:10px;border:1px solid #bac8d7;border-radius:8px;background:white;font:inherit;margin-top:4px}
 @media(max-width:420px){.time-fields{grid-template-columns:minmax(0,2fr) minmax(0,1fr) minmax(0,1fr);gap:5px}.time-fields input,.time-fields select{padding:8px 4px}}
+
+/* Weekend shading is intentionally subtle; availability states remain visible. */
+.day.weekend{background:#fff7dc;border-left:4px solid #e7c875}
+.day.weekend.partial{background:#fce8bb}
+.day.weekend.full{background:#e3e6ea;border-left-color:#b6bbc3}
